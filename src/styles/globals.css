@@ -188,3 +188,48 @@ input[type="checkbox"]:focus {
   color: #fff;
   cursor: pointer;
 }
+.auth-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.auth-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color:#fff;
+  margin-bottom: 1rem;
+}
+
+.auth-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.auth-btn {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.auth-btn.sign-in {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.auth-btn.sign-in:hover {
+  background-color: #0056b3;
+}
+
+.auth-btn.sign-up {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.auth-btn.sign-up:hover {
+  background-color: #1e7e34;
+}
