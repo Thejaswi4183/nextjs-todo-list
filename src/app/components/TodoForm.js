@@ -1,15 +1,23 @@
+"use client";
+
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 const TodoForm = ({ onAddTodo }) => {
   const [text, setText] = useState("");
+  const { isSignedIn } = useUser();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (text) {
+    if (text && isSignedIn) {
       onAddTodo(text);
-      setText(""); // Clear the input field
+      setText("");
     }
   };
+
+  if (!isSignedIn) {
+    return <p className="text-center">Sign in to add tasks</p>;
+  }
 
   return (
     <form className="todo-form" onSubmit={handleSubmit}>

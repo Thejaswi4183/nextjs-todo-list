@@ -1,4 +1,14 @@
+"use client";
+
+import { useUser } from "@clerk/nextjs";
+
 const TodoList = ({ tasks, onDeleteTodo, onToggleComplete }) => {
+  const { isSignedIn } = useUser();
+
+  if (!isSignedIn) {
+    return <p className="text-center">Sign in to view your tasks</p>;
+  }
+
   const handleDelete = (id) => {
     onDeleteTodo(id);
   };

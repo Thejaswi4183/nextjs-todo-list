@@ -1,13 +1,21 @@
+// src/app/api/tasks/route.js
 import { connectToDatabase } from "../../../lib/mongodb";
 import { ObjectId } from "mongodb"; // Make sure you import ObjectId
+import { getAuth } from "@clerk/nextjs/server";
 
-// Fetch tasks
-export async function GET() {
+// Fetch tasks for the authenticated user
+export async function GET(request) {
   try {
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
     const db = await connectToDatabase();
     const collection = db.collection("tasks");
 
-    const tasks = await collection.find({}).toArray();
+    // Only return tasks for the authenticated user
+    const tasks = await collection.find({ userId }).toArray();
 
     return new Response(JSON.stringify(tasks), {
       headers: { "Content-Type": "application/json" },
@@ -18,13 +26,15 @@ export async function GET() {
   }
 }
 
-// Add task
-
+// Add a task for the authenticated user
 export async function POST(request) {
   try {
-    // Ensure that the request body is properly parsed
-    const { text } = await request.json();
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
+    const { text } = await request.json();
     if (!text) {
       return new Response("Task text is required", { status: 400 });
     }
@@ -36,6 +46,7 @@ export async function POST(request) {
       text,
       completed: false,
       createdAt: new Date(),
+      userId, // Associate task with the authenticated user
     };
 
     const result = await collection.insertOne(newTask);
@@ -50,9 +61,7 @@ export async function POST(request) {
   }
 }
 
-
-
-// Delete task
+// Delete a task (only if it belongs to the authenticated user)
 export async function DELETE(request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id"); // Get the task id from the URL params
@@ -62,10 +71,16 @@ export async function DELETE(request) {
   }
 
   try {
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
     const db = await connectToDatabase();
     const collection = db.collection("tasks");
 
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    // Delete only if the task belongs to the authenticated user
+    const result = await collection.deleteOne({ _id: new ObjectId(id), userId });
 
     if (result.deletedCount === 1) {
       return new Response("Task deleted successfully", { status: 200 });
@@ -78,9 +93,10 @@ export async function DELETE(request) {
   }
 }
 
-//Update Task
+// Update task (only if it belongs to the authenticated user)
 export async function PUT(request) {
-  const { id } = Object.fromEntries(new URL(request.url).searchParams); // Correctly extract the ID from query string
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id"); // Extract the task ID from query string
   const updatedTask = await request.json(); // Extract the updated task data
 
   if (!id || !updatedTask) {
@@ -88,18 +104,23 @@ export async function PUT(request) {
   }
 
   try {
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
     const db = await connectToDatabase();
     const collection = db.collection("tasks");
 
-    // Update task using ObjectId
+    // Update task only if it belongs to the authenticated user
     const result = await collection.updateOne(
-      { _id: new ObjectId(id) }, // Find task by ObjectId
-      { $set: { completed: updatedTask.completed } } // Update only the completed status
+      { _id: new ObjectId(id), userId },
+      { $set: { completed: updatedTask.completed } }
     );
 
     if (result.matchedCount > 0) {
-      // If matched task, return the updated task from the database
-      const updatedTaskFromDb = await collection.findOne({ _id: new ObjectId(id) });
+      // Return the updated task from the database
+      const updatedTaskFromDb = await collection.findOne({ _id: new ObjectId(id), userId });
       return new Response(JSON.stringify(updatedTaskFromDb), { status: 200 });
     } else {
       return new Response("Task not found", { status: 404 });

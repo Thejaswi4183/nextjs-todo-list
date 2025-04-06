@@ -1,48 +1,50 @@
 "use client"; // This makes it a client component
 
 import { useState, useEffect } from "react";
+import { useUser, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
 import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
 
 const Page = () => {
+  const { user, isSignedIn } = useUser(); // Using Clerk for authentication
   const [tasks, setTasks] = useState([]);
 
   // Fetch tasks when the component is mounted
   useEffect(() => {
     const fetchTasks = async () => {
-      try {
-        const response = await fetch("/api/tasks");
+      if (isSignedIn) {
+        try {
+          const response = await fetch(`/api/tasks?userId=${user.id}`);
 
-        if (response.ok) {
-          const data = await response.json();
-          setTasks(data); // Set tasks from the response
-        } else {
-          console.error("Failed to fetch tasks");
+          if (response.ok) {
+            const data = await response.json();
+            setTasks(data); // Set tasks from the response
+          } else {
+            console.error("Failed to fetch tasks");
+          }
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
         }
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
       }
     };
 
     fetchTasks();
-  }, []);
+  }, [isSignedIn, user]);
 
   const handleAddTodo = async (newTaskText) => {
     try {
-      // Send the new task to the backend
       const response = await fetch("/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: newTaskText }),
+        body: JSON.stringify({ text: newTaskText, userId: user.id }), // Add userId to the task
       });
 
       if (response.ok) {
         const newTask = await response.json();
-        // Update the tasks state with the new task
         setTasks((prevTasks) => [...prevTasks, newTask]);
 
         // Show success notification with Toastify
@@ -68,7 +70,6 @@ const Page = () => {
       });
 
       if (response.ok) {
-        // Remove the deleted task from the state
         setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
 
         // Show success notification with Toastify
@@ -127,12 +128,30 @@ const Page = () => {
   return (
     <div>
       <h1>MY TODO APP</h1>
-      <TodoForm onAddTodo={handleAddTodo} />
-      <TodoList
-        tasks={tasks}
-        onDeleteTodo={handleDeleteTodo}
-        onToggleComplete={handleToggleComplete}
-      />
+      {!isSignedIn ? (
+        <div className="auth-container">
+        <p className="auth-text">Please sign in to manage your tasks.</p>
+        <div className="auth-buttons">
+          <SignInButton mode="modal">
+            <button className="auth-btn sign-in">Sign In</button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button className="auth-btn sign-up">Sign Up</button>
+          </SignUpButton>
+        </div>
+      </div>
+      
+      ) : (
+        <>
+          <UserButton afterSignOutUrl="/" />
+          <TodoForm onAddTodo={handleAddTodo} />
+          <TodoList
+            tasks={tasks}
+            onDeleteTodo={handleDeleteTodo}
+            onToggleComplete={handleToggleComplete}
+          />
+        </>
+      )}
     </div>
   );
 };
