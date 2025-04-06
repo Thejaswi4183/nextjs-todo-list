@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ✅ My Todo App
 
-## Getting Started
+A modern and minimal **Todo List** app built with:
 
-First, run the development server:
+- **Next.js 14**
+- **Clerk authentication**
+- **ToastifyJS** for notifications
+- **MongoDB** for storage (via API routes)
+- **Vercel** for seamless deployment
 
-```bash
+---
+
+## ✨ Features
+
+- ✅ Sign in/up with Clerk modal
+- 🧠 Persistent tasks per user
+- 🟢 Add, complete, and delete tasks
+- 🔔 Toast notifications for all actions
+- ☁️ Deploys beautifully to Vercel
+
+---
+
+## 🔧 Tech Stack
+
+| Tech           | Usage                           |
+|----------------|---------------------------------|
+| Next.js 14     | App framework                   |
+| Clerk          | User authentication             |
+| MongoDB        | Task database                   |
+| ToastifyJS     | UI notifications                |
+| Vercel         | Deployment platform             |
+
+---
+
+## 🚀 Getting Started
+1. Clone the repo
+git clone https://github.com/your-username/nextjs-todo-list.git
+cd todo-app
+2. Install dependencies
+```npm install```
+3. Add environment variables
+Create a .env.local file in the root:
+```
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+MONGODB_URI=your_mongodb_connection_string
+```
+  You can get these from Clerk.dev and MongoDB Atlas.
+
+4. Run the dev server
+```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+Visit: 
+```
+http://localhost:3000 
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🧪 API Routes
+---
+GET /api/tasks?userId=xxx → Fetch user’s tasks
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+POST /api/tasks → Add new task
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+PUT /api/tasks?id=xxx → Toggle complete
 
-## Learn More
+DELETE /api/tasks?id=xxx → Delete task
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+⚙️ Deployment
+---
+This app is fully deployable to Vercel:
+  ```vercel --prod```
+Or use the Vercel Dashboard and import this repo. Don’t forget to add the env variables in the project settings.
