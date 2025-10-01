@@ -16,6 +16,7 @@ A modern and minimal **Todo List** app built with:
 - 🧠 Persistent tasks per user
 - 🟢 Add, complete, and delete tasks
 - 🔔 Toast notifications for all actions
+- 🔀 Drag & drop to reorder tasks (mobile & desktop)
 - ☁️ Deploys beautifully to Vercel
 
 ---
